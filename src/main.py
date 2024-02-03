@@ -1,12 +1,15 @@
 """Bullet Hell (temp name)"""
 import sys
-import pygame
 import random
-from entities import Object
+import pygame
+from entities import Player
 from constants import (
     WIDTH,
     HEIGHT,
+    PLAYER_WIDTH,
+    PLAYER_HEIGHT,
     BLACK,
+    WHITE
 )
 
 
@@ -15,6 +18,10 @@ class Game:
     def __init__(self, width, height):
         self.width = width
         self.height = height
+        self.player = Player(
+            PLAYER_WIDTH, PLAYER_HEIGHT, WHITE,
+            width // 2 - PLAYER_WIDTH // 2,
+            height // 2 - PLAYER_HEIGHT // 2)
 
     def update(self):
         """Update game state"""
@@ -22,7 +29,7 @@ class Game:
 
     def draw(self, screen):
         """Draw the current game objects"""
-        pass
+        draw_rect(screen, self.player)
 
 
 def collision(obj1, obj2):
@@ -37,8 +44,11 @@ def collision(obj1, obj2):
     return False
 
 
-def draw_rect(screen, color, x, y, width, height):
+def draw_rect(screen, obj):
     """Draws a Pygame rectangle"""
+    color = obj.get_color()
+    x, y = obj.get_x(), obj.get_y()
+    width, height = obj.get_width(), obj.get_height()
     pygame.draw.rect(screen, color, (x, y, width, height))
 
 
