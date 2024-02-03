@@ -1,6 +1,8 @@
 """Bullet Hell (temp name) constants"""
 # Dimensions
 WIDTH, HEIGHT = 1000, 1000
+PLAYER_WIDTH = 50
+PLAYER_HEIGHT = 50
 
 # Colors
 WHITE = (255, 255, 255)
