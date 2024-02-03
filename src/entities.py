@@ -59,5 +59,10 @@ class Player(Object):
     """Represents a Player"""
 
 
+@dataclass
+class Enemy(Object):
+    """Represents an Enemy"""
+
+
 if __name__ == "__main__":
     pass
