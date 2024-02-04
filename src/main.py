@@ -35,6 +35,7 @@ class Game:
             enemy.update_pos()
             if collision(enemy, self.player):
                 self.enemies.remove(enemy)
+                self.player.receive_damage(5)
         if not random.randrange(15):
             self.add_enemy()
         for proj in self.player.get_projectiles():
@@ -72,6 +73,7 @@ class Game:
         for proj in self.player.get_projectiles():
             draw_rect(screen, proj)
         draw_rect(screen, self.player)
+        draw_rect(screen, self.player.get_health())
 
 
 def collision(obj1, obj2):
