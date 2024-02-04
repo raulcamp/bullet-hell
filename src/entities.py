@@ -1,6 +1,12 @@
 """Bullet Hell (temp name) entities, objects, and classes"""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
+from constants import (
+    PROJECTILE_WIDTH,
+    PROJECTILE_HEIGHT,
+    PROJECTILE_SPEED_FACTOR,
+    GREEN,
+)
 
 
 @dataclass
@@ -65,8 +71,34 @@ class Object:
 
 
 @dataclass
+class Projectile(Object):
+    """Represents a Projectile"""
+
+
+@dataclass
 class Player(Object):
     """Represents a Player"""
+    projectiles: list = field(default_factory=list)
+
+    def get_projectiles(self):
+        """Gets the player's fired projectiles"""
+        return self.projectiles
+
+    def shoot_projectile(self, tx, ty):
+        """Shoot a Projectile"""
+        x, y = self.get_x(), self.get_y()
+        xv, yv = (tx - x), (ty - y)
+        norm = math.sqrt(xv**2 + yv**2)
+        dx = PROJECTILE_SPEED_FACTOR * xv / norm
+        dy = PROJECTILE_SPEED_FACTOR * yv / norm
+        proj = Projectile(
+            PROJECTILE_WIDTH, PROJECTILE_HEIGHT, GREEN, x, y, dx, dy)
+        self.projectiles.append(proj)
+        return proj
+
+    def remove_projectile(self, proj):
+        """Removes the projectile"""
+        self.projectiles.remove(proj)
 
 
 @dataclass
