@@ -10,6 +10,7 @@ from constants import (
     PLAYER_HEIGHT,
     ENEMY_WIDTH,
     ENEMY_HEIGHT,
+    SPEED_FACTOR,
     BLACK,
     WHITE,
     RED,
@@ -30,6 +31,7 @@ class Game:
     def update(self):
         """Update game state"""
         for enemy in self.enemies:
+            enemy.update_direction_to(self.player, SPEED_FACTOR)
             enemy.update_pos()
             if collision(enemy, self.player):
                 self.enemies.remove(enemy)
@@ -44,11 +46,8 @@ class Game:
         else:
             x = random.choice([0 - ENEMY_WIDTH, self.width])
             y = random.randint(0 - ENEMY_HEIGHT, self.height)
-        tx, ty = self.player.get_x(), self.player.get_y()
-        time = 200  # TODO: make constant
-        dx = (tx - x) / time
-        dy = (ty - y) / time
-        enemy = Enemy(ENEMY_WIDTH, ENEMY_HEIGHT, WHITE, x, y, dx, dy)
+        enemy = Enemy(ENEMY_WIDTH, ENEMY_HEIGHT, WHITE, x, y)
+        enemy.update_direction_to(self.player, SPEED_FACTOR)
         self.enemies.append(enemy)
         return enemy
 
@@ -69,6 +68,15 @@ def collision(obj1, obj2):
                 and obj1y + obj1.height > obj2y:
             return True
     return False
+
+
+def valid_move(obj, x, y):
+    """Check if the object can move to the given position"""
+    if obj.get_x() + x < 0 or obj.get_x() + x > WIDTH - obj.get_width():
+        return False
+    if obj.get_y() + y < 0 or obj.get_y() + y > HEIGHT - obj.get_height():
+        return False
+    return True
 
 
 def draw_rect(screen, obj):
@@ -118,13 +126,17 @@ def main():
         # Check for key presses
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            pass
+            if valid_move(game.player, -5, 0):
+                game.player.x -= 5
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            pass
+            if valid_move(game.player, 5, 0):
+                game.player.x += 5
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-            pass
+            if valid_move(game.player, 0, 5):
+                game.player.y += 5
         if keys[pygame.K_UP] or keys[pygame.K_w]:
-            pass
+            if valid_move(game.player, 0, -5):
+                game.player.y -= 5
 
         # Draw the grid and current state
         game.draw(screen)
