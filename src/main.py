@@ -35,27 +35,43 @@ class Game:
             enemy.update_pos()
             if collision(enemy, self.player):
                 self.enemies.remove(enemy)
-        if not random.randrange(5):
+        if not random.randrange(15):
             self.add_enemy()
+        for proj in self.player.get_projectiles():
+            proj.update_pos()
+            if is_out_of_bounds(proj):
+                self.player.remove_projectile(proj)
+            else:
+                for enemy in self.enemies:
+                    if collision(enemy, proj):
+                        self.player.remove_projectile(proj)
+                        self.enemies.remove(enemy)
+                        break
 
     def add_enemy(self):
         """Generates a new Enemy"""
         if random.getrandbits(1):
-            x = random.randint(0 - ENEMY_WIDTH, self.width)
-            y = random.choice([0 - ENEMY_HEIGHT, self.height])
+            x = random.randint(-ENEMY_WIDTH, self.width)
+            y = random.choice([-ENEMY_HEIGHT, self.height])
         else:
-            x = random.choice([0 - ENEMY_WIDTH, self.width])
-            y = random.randint(0 - ENEMY_HEIGHT, self.height)
+            x = random.choice([-ENEMY_WIDTH, self.width])
+            y = random.randint(-ENEMY_HEIGHT, self.height)
         enemy = Enemy(ENEMY_WIDTH, ENEMY_HEIGHT, WHITE, x, y)
         enemy.update_direction_to(self.player, SPEED_FACTOR)
         self.enemies.append(enemy)
         return enemy
 
+    def player_attack(self, tx, ty):
+        """Attack from the player"""
+        self.player.shoot_projectile(tx, ty)
+
     def draw(self, screen):
         """Draw the current game objects"""
-        draw_rect(screen, self.player)
         for enemy in self.enemies:
             draw_rect(screen, enemy)
+        for proj in self.player.get_projectiles():
+            draw_rect(screen, proj)
+        draw_rect(screen, self.player)
 
 
 def collision(obj1, obj2):
@@ -77,6 +93,15 @@ def valid_move(obj, x, y):
     if obj.get_y() + y < 0 or obj.get_y() + y > HEIGHT - obj.get_height():
         return False
     return True
+
+
+def is_out_of_bounds(obj):
+    """Checks if the object is out of bounds"""
+    if obj.x < -obj.get_width() or obj.x > WIDTH:
+        return True
+    if obj.y < -obj.get_height() or obj.y > HEIGHT:
+        return True
+    return False
 
 
 def draw_rect(screen, obj):
@@ -102,6 +127,9 @@ def main():
     # Create a Game object
     game = Game(WIDTH, HEIGHT)
 
+    sleep = 5
+    wait = sleep
+
     while True:
         # Fill the background
         draw_background(screen)
@@ -121,7 +149,7 @@ def main():
                 pass
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+                wait = sleep
 
         # Check for key presses
         keys = pygame.key.get_pressed()
@@ -137,6 +165,14 @@ def main():
         if keys[pygame.K_UP] or keys[pygame.K_w]:
             if valid_move(game.player, 0, -5):
                 game.player.y -= 5
+        mice = pygame.mouse.get_pressed()
+        if mice[0]:
+            if wait >= sleep:
+                tx, ty = pygame.mouse.get_pos()
+                game.player_attack(tx, ty)
+                wait = 0
+            else:
+                wait += 1
 
         # Draw the grid and current state
         game.draw(screen)
