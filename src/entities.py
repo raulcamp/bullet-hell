@@ -1,5 +1,6 @@
 """Bullet Hell (temp name) entities, objects, and classes"""
 from dataclasses import dataclass
+import math
 
 
 @dataclass
@@ -52,6 +53,15 @@ class Object:
     def update_pos(self):
         """Updates the position of the Object"""
         self.set_pos(self.x + self.dx, self.y + self.dy)
+
+    def update_direction_to(self, other, factor):
+        """Updates the velocity and direction to other Object"""
+        tx, ty = other.get_x(), other.get_y()
+        xv, yv = (tx - self.get_x()), (ty - self.get_y())
+        norm = math.sqrt(xv**2 + yv**2)
+        dx = factor * xv / norm
+        dy = factor * yv / norm
+        self.set_vel(dx, dy)
 
 
 @dataclass
